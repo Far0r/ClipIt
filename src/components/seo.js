@@ -1,89 +1,92 @@
-/**
- * SEO component that queries for data with
- *  Gatsby's useStaticQuery React hook
- *
- * See: https://www.gatsbyjs.com/docs/use-static-query/
- */
+import React from "react";
+import PropTypes from "prop-types";
+import Helmet from "react-helmet";
+import { StaticQuery, graphql } from "gatsby";
 
-import * as React from "react"
-import PropTypes from "prop-types"
-import { Helmet } from "react-helmet"
-import { useStaticQuery, graphql } from "gatsby"
-
-function Seo({ description, lang, meta, title }) {
-  const { site } = useStaticQuery(
-    graphql`
-      query {
-        site {
-          siteMetadata {
-            title
-            description
-            author
-          }
-        }
-      }
-    `
-  )
-
-  const metaDescription = description || site.siteMetadata.description
-  const defaultTitle = site.siteMetadata?.title
-
+function SEO({ description, lang, meta, keywords, title, data }) {
   return (
-    <Helmet
-      htmlAttributes={{
-        lang,
+    <StaticQuery
+      query={detailsQuery}
+      render={data => {
+        return (
+          <Helmet
+            htmlAttributes={{
+              lang
+            }}
+            title={title}
+            titleTemplate={`%s | ${data.contentfulSiteInformation.siteName}`}
+            meta={[
+              {
+                name: `description`,
+                content: data.contentfulSiteInformation.siteDescription
+              },
+              {
+                property: `og:title`,
+                content: title
+              },
+              {
+                property: `og:description`,
+                content: data.contentfulSiteInformation.siteDescription
+              },
+              {
+                property: `og:type`,
+                content: `website`
+              },
+              {
+                name: `twitter:card`,
+                content: `summary`
+              },
+              {
+                name: `twitter:creator`,
+                content: data.contentfulSiteInformation.twitterHandle
+              },
+              {
+                name: `twitter:title`,
+                content: title
+              },
+              {
+                name: `twitter:description`,
+                content: data.contentfulSiteInformation.siteDescription
+              }
+            ]
+              .concat(
+                keywords.length > 0
+                  ? {
+                      name: `keywords`,
+                      content: keywords.join(`, `)
+                    }
+                  : []
+              )
+              .concat(meta)}
+          />
+        );
       }}
-      title={title}
-      titleTemplate={defaultTitle ? `%s | ${defaultTitle}` : null}
-      meta={[
-        {
-          name: `description`,
-          content: metaDescription,
-        },
-        {
-          property: `og:title`,
-          content: title,
-        },
-        {
-          property: `og:description`,
-          content: metaDescription,
-        },
-        {
-          property: `og:type`,
-          content: `website`,
-        },
-        {
-          name: `twitter:card`,
-          content: `summary`,
-        },
-        {
-          name: `twitter:creator`,
-          content: site.siteMetadata?.author || ``,
-        },
-        {
-          name: `twitter:title`,
-          content: title,
-        },
-        {
-          name: `twitter:description`,
-          content: metaDescription,
-        },
-      ].concat(meta)}
     />
-  )
+  );
 }
 
-Seo.defaultProps = {
+SEO.defaultProps = {
   lang: `en`,
   meta: [],
-  description: ``,
-}
+  keywords: []
+};
 
-Seo.propTypes = {
+SEO.propTypes = {
   description: PropTypes.string,
   lang: PropTypes.string,
-  meta: PropTypes.arrayOf(PropTypes.object),
-  title: PropTypes.string.isRequired,
-}
+  meta: PropTypes.array,
+  keywords: PropTypes.arrayOf(PropTypes.string),
+  title: PropTypes.string.isRequired
+};
 
-export default Seo
+export default SEO;
+
+const detailsQuery = graphql`
+  query DefaultSEOQuery {
+    contentfulSiteInformation {
+      siteName
+      siteDescription
+      twitterHandle
+    }
+  }
+`;

@@ -1,55 +1,53 @@
-/**
- * Layout component that queries for data
- * with Gatsby's useStaticQuery component
- *
- * See: https://www.gatsbyjs.com/docs/use-static-query/
- */
+import React from "react";
+import PropTypes from "prop-types";
+import { StaticQuery, graphql } from "gatsby";
+import "bootstrap/dist/css/bootstrap.css";
 
-import * as React from "react"
-import PropTypes from "prop-types"
-import { useStaticQuery, graphql } from "gatsby"
+import Header from "./header";
+import Footer from "./footer";
 
-import Header from "./header"
-import "./layout.css"
+import "../css/style.css";
+import "../css/font-awesome.css";
 
-const Layout = ({ children }) => {
-  const data = useStaticQuery(graphql`
-    query SiteTitleQuery {
-      site {
-        siteMetadata {
-          title
+if (typeof window !== "undefined") {
+  require("smooth-scroll")('a[href*="#"]');
+}
+
+const Layout = ({ children, header }) => (
+  <StaticQuery
+    query={graphql`
+      query SiteTitleQuery {
+        contentfulSiteInformation {
+          siteName
+          siteDescription
+          logo {
+            file {
+              url
+            }
+          }
+          menus
         }
       }
-    }
-  `)
-
-  return (
-    <>
-      <Header siteTitle={data.site.siteMetadata?.title || `Title`} />
-      <div
-        style={{
-          margin: `0 auto`,
-          maxWidth: 960,
-          padding: `0 1.0875rem 1.45rem`,
-        }}
-      >
-        <main>{children}</main>
-        <footer
-          style={{
-            marginTop: `2rem`,
-          }}
-        >
-          © {new Date().getFullYear()}, Built with
-          {` `}
-          <a href="https://www.gatsbyjs.com">Gatsby</a>
-        </footer>
-      </div>
-    </>
-  )
-}
+    `}
+    
+    render={data => (
+      <>
+        <Header
+          data={data.contentfulSiteInformation}
+          siteTitle={data.contentfulSiteInformation.siteName}
+          header={header}
+        />
+        <div>
+          <main id="home">{children}</main>
+        </div>
+        <Footer siteName={data.contentfulSiteInformation.siteName} />
+      </>
+    )}
+  />
+);
 
 Layout.propTypes = {
-  children: PropTypes.node.isRequired,
-}
+  children: PropTypes.node.isRequired
+};
 
-export default Layout
+export default Layout;
